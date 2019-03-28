@@ -10,7 +10,7 @@ if [ "$1" = 'mysqld' ]; then
 	# Get config
 	DATADIR="/var/lib/mysql"
 
-	if [ ! -d "$DATADIR" ]; then
+	if [ ! -f "$DATADIR/ibdata1" ]; then
 		if [ -z "$MYSQL_ROOT_PASSWORD" -a -z "$MYSQL_ALLOW_EMPTY_PASSWORD" ]; then
 			echo >&2 'error: database is uninitialized and MYSQL_ROOT_PASSWORD not set'
 			echo >&2 '  Did you forget to add -e MYSQL_ROOT_PASSWORD=... ?'
@@ -79,6 +79,7 @@ if [ "$1" = 'mysqld' ]; then
 			case "$f" in
 				*.sh)  echo "$0: running $f"; . "$f" ;;
 				*.sql) echo "$0: running $f"; "${mysql[@]}" < "$f" && echo ;;
+				*.sql.gz) echo "$0: running $f"; gunzip -c "$f" | "${mysql[@]}"; echo ;;
 				*)     echo "$0: ignoring $f" ;;
 			esac
 			echo
